@@ -1,0 +1,6 @@
+[submodule "audiolm-trainer"]
+	path = audiolm-trainer
+	url = https://github.com/nota-github/audiolm-trainer.git
+[submodule "audiolm-evaluator"]
+	path = audiolm-evaluator
+	url = https://github.com/nota-github/audiolm-evaluator.git
