@@ -38,6 +38,7 @@ class Runner:
         self.max_epoch = self.config.config.run.optims.max_epoch
         self.evaluate_only = self.config.config.run.evaluate
         self.cuda_enabled = (self.device.type == "cuda")
+        self.valid_feq = self.config.config.run.valid_freq
 
         # test prompt
         self.prompt_template = self.config.config.model.get("prompt_template", "")
@@ -302,21 +303,22 @@ class Runner:
             train_stats = self.train_epoch(cur_epoch)
             self.log_stats(train_stats, split_name="train")
 
-            # validating phase
-            logging.info("Validating Phase")
-            valid_log = self.valid_epoch(cur_epoch, "valid", decode=False, save_json=False)
-            if valid_log is not None:
-                if is_main_process():
-                    agg_metrics = valid_log["agg_metrics"]
-                    if agg_metrics > best_agg_metric:
-                        best_agg_metric = agg_metrics
-                        best_epoch = cur_epoch
+            if (cur_epoch + 1) % self.valid_feq ==0:
+                # validating phase
+                logging.info("Validating Phase")
+                valid_log = self.valid_epoch(cur_epoch, "valid", decode=False, save_json=False)
+                if valid_log is not None:
+                    if is_main_process():
+                        agg_metrics = valid_log["agg_metrics"]
+                        if agg_metrics > best_agg_metric:
+                            best_agg_metric = agg_metrics
+                            best_epoch = cur_epoch
 
-                        self.save_checkpoint(cur_epoch, is_best=True)                    
+                            self.save_checkpoint(cur_epoch, is_best=True)                    
 
-                    valid_log.update({"best_epoch": best_epoch})
-                    self.log_stats(valid_log, split_name="valid")
-                    wandb.log({"valid/epoch": cur_epoch, "valid/agg_metrics": agg_metrics})
+                        valid_log.update({"best_epoch": best_epoch})
+                        self.log_stats(valid_log, split_name="valid")
+                        wandb.log({"valid/epoch": cur_epoch, "valid/agg_metrics": agg_metrics})
 
             self.save_checkpoint(cur_epoch, is_best=False)
 
