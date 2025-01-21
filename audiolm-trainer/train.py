@@ -1,17 +1,3 @@
-# Copyright (2024) Tsinghua University, Bytedance Ltd. and/or its affiliates
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 import os
 import argparse
 import random
@@ -40,6 +26,7 @@ def parse_args():
         "change to --cfg-options instead.",
     )
     parser.add_argument("--dryrun", action='store_true', help='if True, use dummy model and skip forward/backward')
+    parser.add_argument("--log-level", type=str, default="INFO", help='logging level')  # 디버깅을 위해 추가.
 
     return parser.parse_args()
 
@@ -71,14 +58,14 @@ def main():
     setup_seeds(run_config)
     setup_logger() # set after init_distributed_mode() to only log on master.
 
-    '''
-    임시로 주석
+    
+    
     # Wandb logger
     global_rank = int(os.environ["RANK"])
     if global_rank == 0:
         wandb.login()
         wandb.init(project="audio_lm", name=run_config.exp_name)
-    '''
+    
 
 
     # print config

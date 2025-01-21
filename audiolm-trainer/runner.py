@@ -6,6 +6,7 @@ import time
 import datetime
 from pathlib import Path
 import logging
+from torch.amp import autocast
 
 import torch
 import torch.distributed as dist
@@ -60,12 +61,22 @@ class Runner:
         # model
         self._model = model
         self._model.to(self.device)
+        
+        # 디버깅을 위한 로그 추가
+        logging.info(f"Initializing Runner with rank {get_rank()}")
+        logging.info(f"Device: {self.device}")
+        logging.info(f"Distributed: {self.use_distributed}")
+         # DDP 초기화 에러 처리 추가
         if self.use_distributed:
-            self.model = DDP(
-                self._model, device_ids=[self.config.config.run.gpu]
-            )
-        else:
-            self.model = self._model
+            try:
+                self.model = DDP(
+                    self._model,
+                    device_ids=[self.config.config.run.gpu],
+                    find_unused_parameters=True
+                )
+            except Exception as e:
+                logging.error(f"DDP initialization failed: {e}")
+                raise
 
         # dataloaders
         self.train_loader = get_dataloader(datasets["train"], self.config.config.run, is_train=True, use_distributed=self.use_distributed)
@@ -124,7 +135,7 @@ class Runner:
             if not self.dryrun:
                 self.scheduler.step(cur_epoch=epoch, cur_step=i)
 
-                with torch.cuda.amp.autocast(enabled=self.use_amp):
+                with autocast('cuda', enabled=self.use_amp):
                     loss = self.model(samples)["loss"]
 
                 if self.use_amp:
@@ -177,7 +188,7 @@ class Runner:
             samples = prepare_sample(samples, cuda_enabled=self.cuda_enabled)
 
             if not self.dryrun:
-                with torch.cuda.amp.autocast(enabled=self.use_amp):
+                with autocast('cuda', enabled=self.use_amp):
                     forward_result = model(samples, verbose=True)
                 loss = forward_result.get("loss", 0)
                 correct = forward_result.get("correct", 0)

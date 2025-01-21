@@ -286,3 +286,6 @@ data/*
 output/*
 
 
+# custom
+/audiolm-trainer/outputs_stage1_only
+/audiolm-trainer/outputs_stage2
