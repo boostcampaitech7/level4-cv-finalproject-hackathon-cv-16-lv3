@@ -20,7 +20,7 @@ import random
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from transformers import StoppingCriteriaList, AutoTokenizer, AutoModelForCausalLM, AutoConfig
+from transformers import StoppingCriteriaList, AutoTokenizer, AutoModelForCausalLM, AutoConfig, BitsAndBytesConfig
 from peft import LoraConfig, TaskType, get_peft_model
 
 from .Qformer import BertConfig, BertLMHeadModel
@@ -83,6 +83,7 @@ class SALMONN(nn.Module):
         lora_rank=8,
         lora_alpha=32,
         lora_dropout=0.1,
+        qlora = False,
 
         multi_prompt=False,
         prompt_path="",
@@ -102,6 +103,7 @@ class SALMONN(nn.Module):
         self.second_per_window = second_per_window
         self.second_stride = second_stride
         self.lora = lora
+        self.qlora = qlora
         self.multi_prompt = multi_prompt
         self.max_txt_len = max_txt_len
         self.end_sym = end_sym
@@ -114,27 +116,40 @@ class SALMONN(nn.Module):
 
         if not only_preprocessor:
             logging.info('Loading LLaMA Model')
+
+            # QLoRA 설정
+            if self.qlora:
+                quantization_config = BitsAndBytesConfig(
+                    load_in_4bit=True,
+                    bnb_4bit_use_double_quant=True,
+                    bnb_4bit_quant_type="nf4",
+                    bnb_4bit_compute_dtype=torch.bfloat16,
+                )
+
             if self.low_resource:
                 self.llama_model = AutoModelForCausalLM.from_pretrained(
-                    llama_path,
-                    torch_dtype=torch.float16,
-                    load_in_8bit=True,
-                    device_map={"": device_8bit},
-                    token=token,
-                )
+                llama_path,
+                quantization_config=quantization_config if self.qlora else None, 
+                torch_dtype=torch.float16 if not self.qlora else None,
+                load_in_8bit=not self.qlora,
+                device_map="auto" if self.qlora else {"": device_8bit},
+                token=token,
+            )
             else:
                 self.llama_model = AutoModelForCausalLM.from_pretrained(
-                    llama_path,
-                    torch_dtype=torch.float16,
-                    token=token,
-                )
+                llama_path,
+                quantization_config=quantization_config if self.qlora else None,
+                device_map="auto",
+                torch_dtype=torch.float16 if not self.qlora else None,
+                token=token,
+            )
 
             self.llama_model.resize_token_embeddings(len(self.llama_tokenizer))
             for name, param in self.llama_model.named_parameters():
                 param.requires_grad = False
             logging.info('Loading LLaMA Done')
 
-            if self.lora:
+            if self.lora or self.qlora:
                 self.peft_config = LoraConfig(
                     task_type=TaskType.CAUSAL_LM, 
                     inference_mode=False, 
@@ -144,7 +159,10 @@ class SALMONN(nn.Module):
                 )
                 self.llama_model = get_peft_model(self.llama_model, self.peft_config)
                 self.llama_model.print_trainable_parameters()
-                logging.info('LoRA Training')
+                if self.lora:
+                    logging.info('LoRA Training Initialized')
+                if self.qlora:
+                    logging.info('QLoRA Training Initialized')
 
         assert whisper_path
         logging.info('Loading Whisper Model')
@@ -472,6 +490,7 @@ class SALMONN(nn.Module):
         lora_rank = config.get("lora_rank", 8)
         lora_alpha = config.get("lora_alpha", 32)
         lora_dropout = config.get("lora_dropout", 0.1)
+        qlora = qlora.get("qlora", False)
 
         multi_prompt = config.get("multi_prompt", False)
         prompt_path = config.get("prompt_path", "")
@@ -502,6 +521,7 @@ class SALMONN(nn.Module):
             lora_rank=lora_rank,
             lora_alpha=lora_alpha,
             lora_dropout=lora_dropout,
+            qlora = qlora,
             multi_prompt=multi_prompt,
             prompt_path=prompt_path,
             prompt_template=prompt_template,
