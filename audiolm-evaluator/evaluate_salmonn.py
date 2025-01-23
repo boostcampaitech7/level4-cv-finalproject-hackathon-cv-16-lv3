@@ -40,7 +40,7 @@ def parse_args():
 
 def get_dataset(dataset_cfg, run_cfg, task):
     testset = SALMONNTestDataset(
-        dataset_cfg.prefix, dataset_cfg.test_ann_path, dataset_cfg.whisper_path, task
+        dataset_cfg.prefix, dataset_cfg.test_ann_path, dataset_cfg.whisper_path, task = None
     )
 
     test_loader = get_dataloader(testset, run_cfg, is_train=False, use_distributed=False)

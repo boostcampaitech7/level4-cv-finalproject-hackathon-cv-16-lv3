@@ -80,7 +80,7 @@ def parse_args():
         "--cfg-path",
         type=str,
         help="path to configuration file",
-        default="/root/np-app-audiolm-evaluator/salmonn_eval_config.yaml",
+        default="/root/level4-cv-finalproject-hackathon-cv-16-lv3/audiolm-evaluator/salmonn_eval_config.yaml",
     )
 
     parser.add_argument("--device", type=str, default="cuda:0")

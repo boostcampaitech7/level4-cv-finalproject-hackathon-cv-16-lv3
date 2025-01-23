@@ -287,5 +287,5 @@ output/*
 
 
 # custom
-/audiolm-trainer/outputs_stage1_only
-/audiolm-trainer/outputs_stage2
+audiolm-evaluator/audiolm-trainer/outputs_stage1_only/*
+audiolm-evaluator/audiolm-trainer/outputs_stage2/*
