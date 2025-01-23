@@ -83,7 +83,7 @@ class SALMONN(nn.Module):
         lora_rank=8,
         lora_alpha=32,
         lora_dropout=0.1,
-        # qlora = False,
+        # qlora = True,
 
         multi_prompt=False,
         prompt_path="",
@@ -502,7 +502,7 @@ class SALMONN(nn.Module):
         lora_rank = config.get("lora_rank", 8)
         lora_alpha = config.get("lora_alpha", 32)
         lora_dropout = config.get("lora_dropout", 0.1)
-        # qlora = qlora.get("qlora", False)
+        # qlora = config.get("qlora", False)
 
         multi_prompt = config.get("multi_prompt", False)
         prompt_path = config.get("prompt_path", "")
