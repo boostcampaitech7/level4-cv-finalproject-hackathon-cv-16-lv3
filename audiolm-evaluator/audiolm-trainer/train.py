@@ -64,8 +64,7 @@ def main():
     global_rank = int(os.environ["RANK"])
     if global_rank == 0:
         wandb.login()
-        # wandb.init(project="audio_lm", name=run_config.exp_name)
-        wandb.init(entity="CV_SOTA", project="audio_lm")
+        wandb.init(entity="CV_SOTA", project="audio_lm", name=run_config.exp_name)
 
 
 
