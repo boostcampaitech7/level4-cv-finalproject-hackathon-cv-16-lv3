@@ -287,7 +287,5 @@ output/*
 
 
 # custom
-audiolm-evaluator/audiolm-trainer/outputs_stage1_only/*
-audiolm-evaluator/audiolm-trainer/outputs_stage2/*
 *.pth
 log.txt
