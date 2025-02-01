@@ -17,15 +17,11 @@ class UserDirModule:
 
 class AudioEncoder(nn.Module):
 
-    def __init__(self): # 나중에 path 등을 인자로 받자.
+    def __init__(self):
         super().__init__()
 
         print("Initializing EAT ... ")
-        # self.encoder_type = "eat"
-        # self.use_cls = config['audio_encoder_args']['use_cls']
-
         model_path = UserDirModule('/root/fairseq/EAT')
-        # model_path = UserDirModule('/root/level4-cv-finalproject-hackathon-cv-16-lv3/audiolm-evaluator/audiolm-trainer/models/EAT')
         model="/root/data/_etc/_model/beats_path/EAT-base_epoch30_pt.pt"
         self.audio_width = 768 
 
@@ -40,13 +36,9 @@ class AudioEncoder(nn.Module):
         :param inputs: audio features
         :return: encoded audio embeddings
         """
-        # print(inputs.shape)  # 예를 들어, EAT 모델의 인코더에 들어가기 전
         inputs = inputs.to(dtype=torch.float16)
-        # print("inputs shape: ", inputs.shape)
         audio_encoded = self.audio_enc.extract_features(inputs, padding_mask=padding_mask)['x']
-        # print(audio_encoded.shape) 
-        
-        # return self.audio_enc.model.extract_features(inputs, padding_mask=padding_mask)['x']
+
         return audio_encoded
     
 
@@ -57,7 +49,7 @@ class EAT(nn.Module):
 
         self.embed = 512
         self.encoder_embed_dim = 768
-        self.post_extract_proj = ( # Beats 보고 수정해놓기
+        self.post_extract_proj = ( 
             nn.Linear(self.embed, self.encoder_embed_dim)
             if self.embed != self.encoder_embed_dim
             else None
@@ -73,11 +65,6 @@ class EAT(nn.Module):
         self.encoder = AudioEncoder() # Eat
         self.layer_norm = LayerNorm(self.embed)
 
-        # if cfg.finetuned_model:
-        #     self.predictor_dropout = nn.Dropout(cfg.predictor_dropout)
-        #     self.predictor = nn.Linear(cfg.encoder_embed_dim, cfg.predictor_class)
-        # else:
-        #     self.predictor = None
         self.predictor_dropout = nn.Dropout(0.0)
         self.predictor = nn.Linear(self.encoder_embed_dim, 527)
         
@@ -122,6 +109,7 @@ class EAT(nn.Module):
                 m = torch.nn.ZeroPad2d((0, 0, 0, diff)) 
                 fbank = m(fbank)
             elif diff < 0:
+                # 10초당 target_length가 1024이고, 모델은 30초까지 데이터를 받기 때문에 3072를 넘을 수 없음.
                 print("target_length가 짱 김:", n_frames)
                 # if random_crop: 
                 #     start_index = random.randint(0, n_frames - target_length)
@@ -144,28 +132,23 @@ class EAT(nn.Module):
             feature_only=False,
     ):
         fbank = self.preprocess(source, fbank_mean=fbank_mean, fbank_std=fbank_std).to(torch.float32)
-        # print("fbank shape: ", fbank.shape)
         if padding_mask is not None:
             padding_mask = self.forward_padding_mask(fbank, padding_mask)
 
-        # print("1 forward_padding_mask 이후 fbank:", padding_mask.shape)
         fbank = fbank.unsqueeze(1)
         features = self.patch_embedding(fbank) # 128 차원을 768 차원으로 확장
         features = features.reshape(features.shape[0], features.shape[1], -1)
         features = features.transpose(1, 2)
         features = self.layer_norm(features)
 
-        # Patch Embedding 후에도 padding mask가 필요하므로 다시 적용
         if padding_mask is not None:
             padding_mask = self.forward_padding_mask(features, padding_mask)
-        # print("2 forward_padding_mask 이후 features:", features.shape)
 
         if self.post_extract_proj is not None:
             features = self.post_extract_proj(features)
-        # print("post_extract_proj 이후 features:", features.shape)
 
         x = self.dropout_input(features)
-        x = x.unsqueeze(1)
+        x = x.unsqueeze(1) # CNN에 넣기 위해 차원 추가 (B, C, H, W)의 형태. (4, 1, x, 768) 같은 형태로 변환
         x = self.encoder(
             x,
             padding_mask=padding_mask,
