@@ -26,11 +26,11 @@ from peft import LoraConfig, TaskType, get_peft_model
 from .Qformer import BertConfig, BertLMHeadModel
 from .modeling_llama import LlamaForCausalLM
 from .modeling_whisper import WhisperModel
-from .beats.BEATs import BEATsConfig, BEATs
 from .utils import StoppingCriteriaSub
+from .EAT_ver2 import EAT
+import random
 
-
-class SALMONN(nn.Module):
+class SALMONN_EAT(nn.Module):
     @classmethod
     def init_speech_Qformer(cls, num_query_token, speech_width, num_hidden_layers=2):
         encoder_config = BertConfig.from_pretrained("bert-base-uncased")
@@ -46,6 +46,7 @@ class SALMONN(nn.Module):
         )
         query_tokens.data.normal_(mean=0.0, std=encoder_config.initializer_range)
         return Qformer, query_tokens
+
 
     @property
     def device(self):
@@ -109,6 +110,10 @@ class SALMONN(nn.Module):
         self.end_sym = end_sym
         self.low_resource = low_resource
 
+    
+        import os
+        os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
         logging.info('Loading LLaMA Tokenizer')
         self.llama_tokenizer = AutoTokenizer.from_pretrained(llama_path, use_fast=False, token=token)
         self.llama_tokenizer.add_special_tokens({'pad_token': '[PAD]'})
@@ -166,15 +171,6 @@ class SALMONN(nn.Module):
                     r=lora_rank, 
                     lora_alpha=lora_alpha, 
                     lora_dropout=lora_dropout,
-                    target_modules= [
-                        "q_proj",
-                        "k_proj",
-                        "v_proj",
-                        "o_proj",
-                        "gate_proj",
-                        "down_proj",
-                        "up_proj",
-                        ],
                 )
                 self.llama_model = get_peft_model(self.llama_model, self.peft_config)
                 self.llama_model.print_trainable_parameters()
@@ -195,23 +191,27 @@ class SALMONN(nn.Module):
             self.speech_encoder.eval()
             logging.info("freeze Whisper")
         
-        if self.beats_path:
-            logging.info("Loading BEATs Model")
-            beats_ckpt = torch.load(self.beats_path, map_location='cpu', weights_only=True)
-            beats_cfg = BEATsConfig(beats_ckpt['cfg'])
-            self.beats = BEATs(beats_cfg)
-            self.beats.load_state_dict(beats_ckpt['model'])
-            self.ln_audio = nn.LayerNorm(self.beats.cfg.encoder_embed_dim)
-            if freeze_beats:
-                for name, param in self.beats.named_parameters():
+
+        # if self.EAT_path:
+        if True:
+            logging.info("Loading EAT Model")
+            self.EAT = EAT()
+            self.ln_audio = nn.LayerNorm(self.EAT.encoder_embed_dim)
+            # if freeze_EAT:
+            if True:
+                for name, param in self.EAT.named_parameters():
+                    # print(f"Name: {name}, Data Type: {param.dtype}")
                     param.requires_grad = False
-                self.beats.eval()
-                logging.info("freeze BEATs")
+
+            self.EAT.eval()
+            logging.info("freeze EAT")
+
 
         if self.use_speech_Qformer:
-            if self.beats_path:
+            # if self.EAT_path:
+            if True:
                 self.speech_Qformer, self.speech_query_tokens = self.init_speech_Qformer(
-                    num_query_token=num_speech_query_token, speech_width=self.speech_encoder.config.d_model + self.beats.cfg.encoder_embed_dim
+                    num_query_token=num_speech_query_token, speech_width=self.speech_encoder.config.d_model + self.EAT.encoder_embed_dim
                 )
             else:
                 self.speech_Qformer, self.speech_query_tokens = self.init_speech_Qformer(
@@ -293,7 +293,7 @@ class SALMONN(nn.Module):
                     speech_atts = torch.ones(speech_embeds.size()[:-1], dtype=torch.long, device=speech_embeds.device)
 
                 query_tokens = self.speech_query_tokens.expand(speech_embeds.shape[0], -1, -1)
-                query_output = self.speech_Qformer.bert(
+                query_output = self.speech_Qformer.bert( 
                     query_embeds=query_tokens,
                     encoder_hidden_states=speech_embeds,
                     encoder_attention_mask=speech_atts,
@@ -314,11 +314,12 @@ class SALMONN(nn.Module):
         with self.maybe_autocast():
             speech_embeds = self.speech_encoder(spectrogram, return_dict=True).last_hidden_state
 
-            if self.beats_path and raw_wav is not None:
-                audio_embeds, _ = self.beats.extract_features(raw_wav, padding_mask=audio_padding_mask, feature_only=True)
+            # if self.EAT_path and raw_wav is not None:
+            if True:
+                # print("audio_padding_mask", audio_padding_mask.shape)
+                audio_embeds, _ = self.EAT.extract_features(raw_wav, padding_mask=audio_padding_mask, feature_only=True)
             else:
                 audio_embeds = None
-                        
         return self._encode_auditory_feature(speech_embeds, audio_embeds=audio_embeds)
 
     def prompt_wrap(self, embeds, atts, prompt, multi_prompt=False):
@@ -382,7 +383,8 @@ class SALMONN(nn.Module):
         spectrogram = samples["spectrogram"]
         raw_wav = samples.get("raw_wav", None)
         audio_padding_mask = samples.get("padding_mask", None)
-
+        # mel_spectrogram = samples.get("mel_spectrogram", None)
+        
         speech_embeds, speech_atts = self.encode_speech(spectrogram, raw_wav=raw_wav, audio_padding_mask=audio_padding_mask)
 
         # wrap speech_embeds with prompts
@@ -494,6 +496,8 @@ class SALMONN(nn.Module):
         llama_path = config.get("llama_path")
         whisper_path = config.get("whisper_path")
         freeze_whisper = config.get("freeze_whisper", True)
+        # EAT_path = config.get("EAT_path", "")
+        # freeze_EAT = config.get("freeze_EAT", True)
         beats_path = config.get("beats_path", "")
         freeze_beats = config.get("freeze_beats", True)
 

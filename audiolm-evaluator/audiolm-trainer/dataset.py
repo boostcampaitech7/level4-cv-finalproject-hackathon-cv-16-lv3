@@ -90,8 +90,8 @@ class SALMONNDataset(Dataset):
         if sr != self.wav_processor.sampling_rate: # TODO. use more efficient implementation            
             audio = librosa.resample(audio, orig_sr=sr, target_sr=self.wav_processor.sampling_rate)
             sr = self.wav_processor.sampling_rate
-
-        audio = audio[: sr * 30] # truncate audio to at most 30s
+        # sr = 16000 입니다. 최대 30초 길이까지만 가져온다.
+        audio = audio[: sr * 30] # truncate audio to at most 30s 
 
         spectrogram = self.wav_processor(audio, sampling_rate=sr, return_tensors="pt")["input_features"].squeeze()
         text = ann["text"]

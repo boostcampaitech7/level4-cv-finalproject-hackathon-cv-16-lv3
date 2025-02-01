@@ -10,7 +10,7 @@ import wandb
 from utils import *
 from config import Config
 from dist_utils import get_rank, init_distributed_mode
-from models import load_model
+from models import load_model, load_model_EAT
 from dataset import SALMONNDataset
 from runner import Runner
 
@@ -83,8 +83,13 @@ def main():
     
     # 모델 빌드
     if not args.dryrun:
-        model = load_model(model_config)
-        print("실제 모델이 로드되었습니다.")
+        if cfg.config.model.beats_to_eat:
+            model = load_model_EAT(model_config)
+            print("실제 모델이 로드되었습니다.(EAT)")
+        else:
+            model = load_model(model_config)
+            print("실제 모델이 로드되었습니다.Beats")
+
     else:  # 작은 더미 언어 모델 로드
         from transformers import AutoModelForCausalLM
         model = AutoModelForCausalLM.from_pretrained("apple/OpenELM-270M-Instruct", trust_remote_code=True)

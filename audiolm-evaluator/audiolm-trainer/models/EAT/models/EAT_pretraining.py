@@ -222,7 +222,6 @@ class Data2VecMultiModel(BaseFairseqModel):
                 task,
             )
             self.modality_encoders[mod.name] = enc
-
         self.ema = None
 
         self.average_top_k_layers = cfg.average_top_k_layers
@@ -380,7 +379,7 @@ class Data2VecMultiModel(BaseFairseqModel):
         self.num_updates = num_updates
 
     def state_dict(self, destination=None, prefix="", keep_vars=False):
-        state = super().state_dict(destination, prefix, keep_vars)
+        state = super().state_dict(destination=destination, prefix=prefix, keep_vars=keep_vars)
 
         if self.ema is not None:
             state[prefix + "_ema"] = self.ema.fp32_params
@@ -434,7 +433,6 @@ class Data2VecMultiModel(BaseFairseqModel):
 
         if isinstance(mode, Modality):
             mode = mode.name
-
         feature_extractor = self.modality_encoders[mode]
 
         mask_seeds = None
@@ -482,7 +480,8 @@ class Data2VecMultiModel(BaseFairseqModel):
 
                 x, lr = blk(
                     x,
-                    padding_mask=masked_padding_mask,
+                    # padding_mask=masked_padding_mask,
+                    padding_mask=None,
                     alibi_bias=ab,
                 )
                 if features_only:

@@ -12,7 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from .salmonn_EAT import SALMONN_EAT
 from .salmonn import SALMONN
 
 def load_model(config):
     return SALMONN.from_config(config)
+
+def load_model_EAT(config):
+    return SALMONN_EAT.from_config(config)

@@ -98,6 +98,7 @@ def main(args):
         outputs = llama_model.model.generate(
             inputs_embeds=embeds,
             pad_token_id=llama_model.config.eos_token_id[0],
+            # pad_token_id=llama_model.config.eos_token_id, deepseek 사용 시 이렇게 변경
             max_new_tokens=generate_cfg.get("max_new_tokens", 200),
             num_beams=generate_cfg.get("num_beams", 4),
             do_sample=generate_cfg.get("do_sample", False),
@@ -125,7 +126,9 @@ def main(args):
             compute_spider(hyps, refs)
 
     result_df = pd.DataFrame({"testset_id": testset_ids, "text": hyps})
-    result_df.to_csv("submission.csv", index=False)
+    
+    save_name = f"submission_{args.task}.csv"
+    result_df.to_csv(save_name, index=False)
 
 
 if __name__ == '__main__':

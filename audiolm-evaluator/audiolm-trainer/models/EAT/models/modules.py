@@ -12,11 +12,21 @@ from dataclasses import dataclass
 from fairseq.modules import (
     LayerNorm,
     SamePad,
-    SamePad2d,
+    # SamePad2d, 왜인지 모르겠지만 없다고 뜸.
     TransposeLast,
 )
 
+class SamePad2d(nn.Module):
+    def __init__(self, kernel_size):
+        super().__init__()
+        self.remove = 1 if kernel_size % 2 == 0 else 0
 
+    def forward(self, x):
+        assert len(x.size()) == 4
+        if self.remove > 0:
+            x = x[:, :, : -self.remove, : -self.remove]
+        return x
+    
 @dataclass
 class D2vDecoderConfig:
     decoder_dim: int = 384
@@ -313,6 +323,7 @@ class AltBlock(nn.Module):
             if not self.ffn_targets:
                 t = x
         else:
+
             x = x + self.drop_path(self.attn(x, padding_mask, alibi_bias))
             r = x = self.norm1(x)
             x = self.mlp(x)

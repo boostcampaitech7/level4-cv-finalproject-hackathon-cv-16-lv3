@@ -9,8 +9,16 @@ accelerate==1.2.1
 bitsandbytes==0.45.0
 gradio==3.23.0
 wandb==0.19.1
-omegaconf==2.3.0
+# omegaconf==2.3.0
 tensorboardX==2.6.2.2
 editdistance==0.8.1
 sacrebleu==1.5.1
 more-itertools==10.6.0
+
+# EAT
+# fairseq==0.12.2
+# h5py==3.10.0
+# omegaconf==2.0.6
+# pyarrow==15.0.0
+# timm==0.9.12
+# torchsummary==1.5.1
