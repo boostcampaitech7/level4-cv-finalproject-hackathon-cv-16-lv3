@@ -496,8 +496,6 @@ class SALMONN_EAT(nn.Module):
         llama_path = config.get("llama_path")
         whisper_path = config.get("whisper_path")
         freeze_whisper = config.get("freeze_whisper", True)
-        # EAT_path = config.get("EAT_path", "")
-        # freeze_EAT = config.get("freeze_EAT", True)
         beats_path = config.get("beats_path", "")
         freeze_beats = config.get("freeze_beats", True)
 
