@@ -2,12 +2,13 @@ model:
   # paths
   llama_path: "meta-llama/Llama-3.2-3B-Instruct"
   whisper_path: "openai/whisper-large-v2"
+  beats_to_eat: False
   # beats_path: "/root/data/model/beats_path/BEATs_iter3_plus_AS2M_finetuned_on_AS2M_cpt2.pt"
-  beats_path: "/root/data/_model/beats_path/BEATs_iter3_plus_AS2M_finetuned_on_AS2M_cpt2.pt"
+  beats_path: ""
 
   token: "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"  # Use hf token to access gated repositories
 
-  ckpt: "/root/level4-cv-finalproject-hackathon-cv-16-lv3/audiolm-trainer/mini_outputs_stage1_only/202501211520/checkpoint_best.pth" # you may put stage1 checkpoint .pth path in here
+  ckpt: "/root/data/_submission/stage1_without_beats.pth" # you may put stage1 checkpoint .pth path in here
 
   freeze_whisper: True
   freeze_beats: True
@@ -37,10 +38,10 @@ model:
   end_sym: "</s>"
 
 datasets:
-  prefix: "/root/data/_mini_data"
+  prefix: "/root/data"
 
-  train_ann_path: "/root/data/_mini_data/stage2_train.json"
-  valid_ann_path: "/root/data/_mini_data/stage2_valid_4000.json"
+  train_ann_path: "/root/data/stage2_train_4000.json"
+  valid_ann_path: "/root/data/stage2_valid_4000.json"
   test_ann_path: "/root/data/test_aac.json"
 
   whisper_path: "openai/whisper-large-v2"
@@ -48,14 +49,14 @@ datasets:
 run:
   # log & settings
   seed: 42
-  output_dir: "outputs_stage2"
+  output_dir: "without_Beats-stage2"
   evaluate: False # if True, only evaluate model on test data
-  exp_name: "llama-3.2-1B-1percent-stage2"
+  exp_name: "without_Beats-stage2"
 
   log_freq: 100
   valid_freq: 5
   epoch_based: False
-  iters_per_epoch: 3000
+  iters_per_epoch: 500
   accum_grad_iters: 1
   batch_size_train: 4
   batch_size_eval: 4
