@@ -72,11 +72,20 @@ def main():
     cfg.pretty_print()
 
     # build datasets
-    datasets = {
-        "train": SALMONNDataset(data_config.prefix, data_config.train_ann_path, data_config.whisper_path, data_config.augmentation),
-        "valid": SALMONNDataset(data_config.prefix, data_config.valid_ann_path, data_config.whisper_path),
-        "test": SALMONNDataset(data_config.prefix, data_config.test_ann_path, data_config.whisper_path),
-    }
+    # yaml 파일의 인자를 추가하게 돼서
+    # augmentation 인자가 없어도 실행이 되게 if문 추가
+    if "augmentation" not in data_config:
+        datasets = {
+            "train": SALMONNDataset(data_config.prefix, data_config.train_ann_path, data_config.whisper_path),
+            "valid": SALMONNDataset(data_config.prefix, data_config.valid_ann_path, data_config.whisper_path),
+            "test": SALMONNDataset(data_config.prefix, data_config.test_ann_path, data_config.whisper_path),
+        }
+    else:
+        datasets = {
+            "train": SALMONNDataset(data_config.prefix, data_config.train_ann_path, data_config.whisper_path, data_config.augmentation),
+            "valid": SALMONNDataset(data_config.prefix, data_config.valid_ann_path, data_config.whisper_path),
+            "test": SALMONNDataset(data_config.prefix, data_config.test_ann_path, data_config.whisper_path),
+        }
 
     # dataset build 완료
     print("datasets build 를 완료하였습니다.")
