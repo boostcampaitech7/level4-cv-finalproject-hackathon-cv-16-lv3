@@ -25,7 +25,7 @@ import os
 
 
 class SALMONNDataset(Dataset):
-    def __init__(self, prefix, ann_path, whisper_path):
+    def __init__(self, prefix, ann_path, whisper_path, augmentation=None):
         super().__init__()
 
         self.prefix = prefix
@@ -33,6 +33,24 @@ class SALMONNDataset(Dataset):
         self.annotation = json.load(open(ann_path, "r"))["annotation"]
 
         self.wav_processor = WhisperFeatureExtractor.from_pretrained(whisper_path)
+
+        if augmentation is not None:  # train에만, 인자가 있을 경우에만 사용
+            import audiomentations as A
+
+            # segmentation 프로젝트할 때 사용했던 코드
+            transform = []
+            for aug, params in augmentation.items():
+                if params.get("use", True):
+                    new_params = {k: v for k, v in params.items() if k != "use"}
+                    transform.append(getattr(A, aug)(**new_params))
+                
+            if len(transform) == 0: # 기법이 없거나 기법을 사용하지 않으면
+                self.augmentation = None
+            else:
+                self.augmentation = A.Compose(transform)
+        else:
+            self.augmentation = None
+
 
     def __len__(self):
         return len(self.annotation)
@@ -83,6 +101,12 @@ class SALMONNDataset(Dataset):
                 #sil = np.zeros(int(sr/10), dtype=float)
                 #audio = np.concatenate((audio, sil, expand_audio), axis=0)
                 
+        # 오디오 증강 적용
+        if self.augmentation: # self.augmentation이 None이 아닐 때만
+            # audiomentations는 samples=float32 필요, float64로 읽힐 때가 있으므로 float32로 변환
+            audio = audio.astype(np.float32)
+            audio = self.augmentation(samples=audio, sample_rate=sr)
+
         if len(audio) < sr: # pad audio to at least 1s
             sil = np.zeros(sr - len(audio), dtype=float)
             audio = np.concatenate((audio, sil), axis=0)
