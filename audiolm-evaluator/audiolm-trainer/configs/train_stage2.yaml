@@ -61,7 +61,7 @@ datasets:
 
   augmentation:
     AddGaussianNoise:
-      use: True
+      use: False
       p: 0.5
 
 run:
