@@ -73,6 +73,11 @@ datasets:
 
   whisper_path: "openai/whisper-large-v2"
 
+  augmentation:
+    AddGaussianNoise:
+      use: True
+      p: 0.5
+
 run:
   # log & settings
   seed: 42
