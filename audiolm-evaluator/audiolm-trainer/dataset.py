@@ -40,7 +40,7 @@ class SALMONNDataset(Dataset):
             # segmentation 프로젝트할 때 사용했던 코드
             transform = []
             for aug, params in augmentation.items():
-                if params.get("use", True):
+                if params.get("use", False):
                     new_params = {k: v for k, v in params.items() if k != "use"}
                     transform.append(getattr(A, aug)(**new_params))
                 
