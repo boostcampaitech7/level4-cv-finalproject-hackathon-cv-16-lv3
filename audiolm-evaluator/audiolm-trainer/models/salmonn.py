@@ -83,7 +83,7 @@ class SALMONN(nn.Module):
         lora_rank=8,
         lora_alpha=32,
         lora_dropout=0.1,
-        # qlora = True,
+        qlora = True,
 
         multi_prompt=False,
         prompt_path="",
@@ -103,7 +103,7 @@ class SALMONN(nn.Module):
         self.second_per_window = second_per_window
         self.second_stride = second_stride
         self.lora = lora
-        # self.qlora = qlora
+        self.qlora = qlora
         self.multi_prompt = multi_prompt
         self.max_txt_len = max_txt_len
         self.end_sym = end_sym
@@ -148,6 +148,7 @@ class SALMONN(nn.Module):
                 device_map=None,
                 torch_dtype=torch.float16 if not self.qlora else None,
                 token=token,
+                # trust_remote_code=True, # MoE 사용시 활성화
             )
             #     llama_path,
             #     torch_dtype=torch.float16,
@@ -166,6 +167,15 @@ class SALMONN(nn.Module):
                     r=lora_rank, 
                     lora_alpha=lora_alpha, 
                     lora_dropout=lora_dropout,
+                    target_modules=[
+                        "q_proj",
+                        "k_proj",
+                        "v_proj",
+                        "o_proj",
+                        "gate_proj",
+                        "down_proj",
+                        "up_proj",
+                    ],
                 )
                 self.llama_model = get_peft_model(self.llama_model, self.peft_config)
                 self.llama_model.print_trainable_parameters()
