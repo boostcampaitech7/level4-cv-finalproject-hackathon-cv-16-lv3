@@ -94,11 +94,15 @@ def main(args):
 
         generate_cfg = cfg.config.generate
 
+        pad_token_id = llama_model.config.eos_token_id
+        if isinstance(pad_token_id, list):
+            pad_token_id = pad_token_id[0]
+
         # Generation
         outputs = llama_model.model.generate(
             inputs_embeds=embeds,
             # pad_token_id=llama_model.config.eos_token_id[0],
-            pad_token_id=llama_model.config.eos_token_id,
+            pad_token_id=pad_token_id,
             max_new_tokens=generate_cfg.get("max_new_tokens", 200),
             num_beams=generate_cfg.get("num_beams", 4),
             do_sample=generate_cfg.get("do_sample", False),
