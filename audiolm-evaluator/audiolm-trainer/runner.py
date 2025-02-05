@@ -183,7 +183,7 @@ class Runner:
             model = self.unwrap_dist_model(self.model)
             model.eval()
 
-        dataloader = getattr(self, split + "_loader", None) # train, valid, test loader 중 하나 가져옴
+        dataloader = getattr(self, split + "_loader", None)
         assert dataloader is not None, "{}_loader does not exist.".format(split)
 
         metric_logger = MetricLogger(delimiter="  ")
@@ -191,7 +191,7 @@ class Runner:
 
         results = []
         for samples in metric_logger.log_every(dataloader, self.config.config.run.log_freq, header=header):
-            samples = prepare_sample(samples, cuda_enabled=self.cuda_enabled) # cuda로 변환
+            samples = prepare_sample(samples, cuda_enabled=self.cuda_enabled)
 
             if not self.dryrun:
                 with autocast('cuda', enabled=self.use_amp):
