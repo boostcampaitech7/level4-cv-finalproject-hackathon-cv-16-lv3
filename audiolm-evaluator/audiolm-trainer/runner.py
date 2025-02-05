@@ -226,7 +226,6 @@ class Runner:
                 else:
                     prompts = None
 
-                # text = model.generate(samples, self.config.config.run, prompts=prompts, pad_token_id=model.config.eos_token_id)
                 text = model.generate(samples, self.config.config.run, prompts=prompts)
                 res["text"] = text
                 res["prompt"] = prompts
