@@ -19,6 +19,10 @@ from logger import MetricLogger, SmoothedValue
 from utils import get_dataloader, prepare_sample
 from optims import get_optimizer, LinearWarmupCosineLRScheduler
 
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))) # 부모 폴더를 sys.path에 추가
+from metrics import compute_wer, compute_spider 
+
 
 class Runner:
     def __init__(self, cfg, model, datasets, job_id, dryrun):
@@ -40,6 +44,8 @@ class Runner:
         self.evaluate_only = self.config.config.run.evaluate
         self.cuda_enabled = (self.device.type == "cuda")
         self.valid_feq = self.config.config.run.valid_freq
+        self.scoring = self.config.config.run.valid_scoring
+        self.sym = self.config.config.model.end_sym
 
         # test prompt
         self.prompt_template = self.config.config.model.get("prompt_template", "")
@@ -172,12 +178,12 @@ class Runner:
         }
 
     @torch.no_grad()
-    def valid_epoch(self, epoch, split, decode=False, save_json=False):
+    def valid_epoch(self, epoch, split, decode=False, save_json=False, scoring=False):
         if not self.dryrun:
             model = self.unwrap_dist_model(self.model)
             model.eval()
 
-        dataloader = getattr(self, split + "_loader", None)
+        dataloader = getattr(self, split + "_loader", None) # train, valid, test loader 중 하나 가져옴
         assert dataloader is not None, "{}_loader does not exist.".format(split)
 
         metric_logger = MetricLogger(delimiter="  ")
@@ -185,7 +191,7 @@ class Runner:
 
         results = []
         for samples in metric_logger.log_every(dataloader, self.config.config.run.log_freq, header=header):
-            samples = prepare_sample(samples, cuda_enabled=self.cuda_enabled)
+            samples = prepare_sample(samples, cuda_enabled=self.cuda_enabled) # cuda로 변환
 
             if not self.dryrun:
                 with autocast('cuda', enabled=self.use_amp):
@@ -220,6 +226,7 @@ class Runner:
                 else:
                     prompts = None
 
+                # text = model.generate(samples, self.config.config.run, prompts=prompts, pad_token_id=model.config.eos_token_id)
                 text = model.generate(samples, self.config.config.run, prompts=prompts)
                 res["text"] = text
                 res["prompt"] = prompts
@@ -240,6 +247,8 @@ class Runner:
             "n_token": torch.tensor(0).float().cuda(),
         }
         
+        hyps, refs = [], []
+        
         for item in results:
             item_loss = item["loss"]
             item_n_sample = len(item["id"])
@@ -250,6 +259,11 @@ class Runner:
             res["correct"] += item_correct
             res["n_token"] += item_n_token
 
+            if scoring:
+                hyp = [x.split(self.sym)[0].lower() for x in item["text"]]
+                hyps.append(hyp)
+                refs.append(item["ground_truth"])
+
         if is_dist_avail_and_initialized():
             dist.all_reduce(res["loss"])
             dist.all_reduce(res["n_sample"])
@@ -259,6 +273,16 @@ class Runner:
         ret = {"loss": 0, "agg_metrics": 0}
         ret["loss"] = (res["loss"] / res["n_sample"]).item()
         ret["agg_metrics"] = (res["correct"] / res["n_token"]).item()
+
+        if scoring:
+            # runner.py 내 valid_epoch() 함수 수정
+            if isinstance(refs[0], list):
+                refs = [" ".join(ref) for ref in refs]  # 리스트 내부 요소를 문자열로 변환
+            if isinstance(hyps[0], list):
+                hyps = [" ".join(hyp) for hyp in hyps]  
+                
+            ret["asr"] = compute_wer(hyps, refs)
+            ret["aac"] = compute_spider(hyps, refs)
 
         return ret
 
@@ -317,7 +341,8 @@ class Runner:
             if (cur_epoch + 1) % self.valid_feq ==0:
                 # validating phase
                 logging.info("Validating Phase")
-                valid_log = self.valid_epoch(cur_epoch, "valid", decode=False, save_json=False)
+                valid_log = self.valid_epoch(cur_epoch, "valid", decode=self.scoring, save_json=False, scoring=self.scoring)
+                # valid_log = self.valid_epoch(cur_epoch, "valid", decode=False, save_json=False, scoring=self.scoring)
                 if valid_log is not None:
                     if is_main_process():
                         agg_metrics = valid_log["agg_metrics"]
@@ -329,7 +354,10 @@ class Runner:
 
                         valid_log.update({"best_epoch": best_epoch})
                         self.log_stats(valid_log, split_name="valid")
-                        wandb.log({"valid/epoch": cur_epoch, "valid/agg_metrics": agg_metrics})
+                        if self.scoring:
+                            wandb.log({"valid/epoch": cur_epoch, "valid/agg_metrics": agg_metrics, "valid/asr": valid_log["asr"], "valid/aac": valid_log["aac"]})
+                        else:
+                            wandb.log({"valid/epoch": cur_epoch, "valid/agg_metrics": agg_metrics})
 
             self.save_checkpoint(cur_epoch, is_best=False)
 

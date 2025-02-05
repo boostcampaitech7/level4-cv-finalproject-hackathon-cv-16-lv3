@@ -473,8 +473,13 @@ class SALMONN(nn.Module):
         stop_words_ids = [torch.tensor([2]).to(speech_embeds.device)] # TODO: fix this heuristics  
         stopping_criteria = StoppingCriteriaList([StoppingCriteriaSub(stops=stop_words_ids)])
         
+        pad_token_id = self.llama_tokenizer.eos_token_id # eos_token_id를 받아서 generate 모델에 전달
+        if isinstance(pad_token_id, list): # eos_token_id가 list일 때와 아닐 때를 구분
+            pad_token_id = pad_token_id[0]
+        
         outputs = self.llama_model.generate(
             inputs_embeds=embeds,
+            pad_token_id=pad_token_id, # 추가
             max_new_tokens=generate_cfg.get("max_new_tokens", 200),
             stopping_criteria=stopping_criteria,
             num_beams=generate_cfg.get("num_beams", 4),

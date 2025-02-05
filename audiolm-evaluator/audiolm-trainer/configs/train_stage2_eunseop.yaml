@@ -1,8 +1,8 @@
 model:
   # paths
-  llama_path: "meta-llama/Llama-3.2-3B-Instruct"
+  # llama_path: "meta-llama/Llama-3.2-3B-Instruct"
   # llama_path: "llama-moe/LLaMA-MoE-v1-3_0B-2_16" # MoE
-  # llama_path: "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B" # deepseek distill qwen
+  llama_path: "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B" # deepseek distill qwen
   
   whisper_path: "openai/whisper-large-v2"
   # whisper_path: "openai/whisper-large-v3-turbo" 
@@ -11,7 +11,7 @@ model:
 
   token: "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"  # Use hf token to access gated repositories
 
-  ckpt: "/root/level4-cv-finalproject-hackathon-cv-16-lv3/audiolm-trainer/mini_outputs_stage1_only/202501211520/checkpoint_best.pth" # you may put stage1 checkpoint .pth path in here
+  ckpt: "/root/data/_submission/deepseek/stage2_deepseek.pth" # you may put stage1 checkpoint .pth path in here
 
   freeze_whisper: True
   freeze_beats: True
@@ -38,32 +38,52 @@ model:
   prompt_path: "prompts/train_prompt.json"
   test_prompt_path: "prompts/test_prompt.json"
   max_txt_len: 300
-  end_sym: "</s>"
+  end_sym: "<｜end▁of▁sentence｜>"
+  # end_sym: "</s>"
 
 datasets:
   prefix: "/root/data"
-
-  train_ann_path: "/root/data/stage2_train_4000.json"
-  valid_ann_path: "/root/data/stage2_valid_4000.json"
+  train_ann_path: "/root/data/_etc/for_coding_json/stage2_train.json"
+  valid_ann_path: "/root/data/_etc/for_coding_json/stage2_valid.json"
+  # train_ann_path: "/root/data/stage2_train_4000.json"
+  # valid_ann_path: "/root/data/stage2_valid_4000.json"
   test_ann_path: "/root/data/test_aac.json"
 
   whisper_path: "openai/whisper-large-v2"
   # whisper_path: "openai/whisper-large-v3-turbo"
 
+  augmentation:
+    # AddGaussianNoise:
+    #   use: True
+    #   p: 0.5
+
+    # Mp3Compression: 
+    #   use: True
+    #   p: 0.5
+
+    # TimeStretch:
+    #   use: True
+    #   p: 0.5
+
+    # Gain:
+    #   use: True
+    #   p: 0.5
+
 run:
   # log & settings
   seed: 42
-  output_dir: "outputs_stage2"
+  output_dir: "testing_valid_stage2"
   evaluate: False # if True, only evaluate model on test data
-  exp_name: "llama-3.2-1B-1percent-stage2"
+  exp_name: "testing_valid_stage2"
 
   log_freq: 100
-  valid_freq: 5
+  valid_freq: 1
+  valid_scoring: True
   epoch_based: False
-  iters_per_epoch: 3000
+  iters_per_epoch: 10
   accum_grad_iters: 1
-  batch_size_train: 4
-  batch_size_eval: 4
+  batch_size_train: 1
+  batch_size_eval: 8
   num_workers: 4
 
   device: "cuda"

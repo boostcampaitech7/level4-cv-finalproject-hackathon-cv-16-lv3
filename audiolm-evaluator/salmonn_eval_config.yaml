@@ -14,14 +14,15 @@
 
 model:
   # paths
-  llama_path: "llama-moe/LLaMA-MoE-v1-3_0B-2_16"
+  # llama_path: "llama-moe/LLaMA-MoE-v1-3_0B-2_16"
+  llama_path: "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
   whisper_path: "openai/whisper-large-v2"
   beats_path: "/root/data/_etc/_model/beats_path/BEATs_iter3_plus_AS2M_finetuned_on_AS2M_cpt2.pt"
 
   token: "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" # Use hf token to access gated repositories
   only_preprocessor: False
 
-  ckpt: "/root/data/_submission/MoE/llama_moe_2_stage2.pth" # model used for decoding
+  ckpt: "/root/data/_submission/deepseek/stage2_deepseek.pth" # model used for decoding
 
   freeze_whisper: True
   freeze_beats: True
@@ -65,9 +66,10 @@ generate:
 datasets:
   prefix: "/root/data"
   test_ann_path: "/root/data/test_asr.json"
+  # test_ann_path: "/root/data/stage1_valid_1000.json"
   whisper_path: "openai/whisper-large-v2"
 
 run:
-  batch_size_eval: 2
+  batch_size_eval: 8
   num_workers: 8
   device: "cuda"
