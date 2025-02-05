@@ -60,6 +60,7 @@ run:
 
   log_freq: 100
   valid_freq: 5
+  valid_scoring: True
   epoch_based: False
   iters_per_epoch: 3000
   accum_grad_iters: 1
