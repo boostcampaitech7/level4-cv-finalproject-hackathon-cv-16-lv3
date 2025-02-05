@@ -1,9 +1,13 @@
 model:
   # paths
   llama_path: "meta-llama/Llama-3.2-3B-Instruct"
+  # llama_path: "llama-moe/LLaMA-MoE-v1-3_0B-2_16" # MoE
+  # llama_path: "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B" # deepseek distill qwen
+  
   whisper_path: "openai/whisper-large-v2"
-  # beats_path: "/root/data/model/beats_path/BEATs_iter3_plus_AS2M_finetuned_on_AS2M_cpt2.pt"
-  beats_path: "/root/data/_model/beats_path/BEATs_iter3_plus_AS2M_finetuned_on_AS2M_cpt2.pt"
+  # whisper_path: "openai/whisper-large-v3-turbo" 
+
+  beats_path: "/root/data/_etc/_model/beats_path/BEATs_iter3_plus_AS2M_finetuned_on_AS2M_cpt2.pt"
 
   token: "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"  # Use hf token to access gated repositories
 
@@ -37,13 +41,14 @@ model:
   end_sym: "</s>"
 
 datasets:
-  prefix: "/root/data/_mini_data"
+  prefix: "/root/data"
 
-  train_ann_path: "/root/data/_mini_data/stage2_train.json"
-  valid_ann_path: "/root/data/_mini_data/stage2_valid_4000.json"
+  train_ann_path: "/root/data/stage2_train_4000.json"
+  valid_ann_path: "/root/data/stage2_valid_4000.json"
   test_ann_path: "/root/data/test_aac.json"
 
   whisper_path: "openai/whisper-large-v2"
+  # whisper_path: "openai/whisper-large-v3-turbo"
 
 run:
   # log & settings
