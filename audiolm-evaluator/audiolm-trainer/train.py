@@ -14,6 +14,9 @@ from models import load_model
 from dataset import SALMONNDataset
 from runner import Runner
 
+import os
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description='train parameters')
