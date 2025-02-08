@@ -497,7 +497,8 @@ class EnglishSpellingNormalizer:
     """
 
     def __init__(self):
-        mapping_path = os.path.join("data/english.json")
+        mapping_path = os.path.join("/root/level4-cv-finalproject-hackathon-cv-16-lv3/audiolm-evaluator/data/english.json")
+        # mapping_path = os.path.join("data/english.json")
         self.mapping = json.load(open(mapping_path))
 
     def __call__(self, s: str):
@@ -672,7 +673,8 @@ def compute_wer(hyps, refs) -> float:
     
     wer = distance / ref_length
 
-    print(f"WER: {wer*100:0.4f}%")
+    print(f"WER: {wer:0.4f}")
+    return wer
 
 
 
@@ -961,3 +963,4 @@ def compute_spider(hyps, refs) -> float:
     
     spider = float(f"{corpus_score['cider_d'].item()*100.0:.4f}")
     print(f"SPIDEr: {spider}")
+    return spider

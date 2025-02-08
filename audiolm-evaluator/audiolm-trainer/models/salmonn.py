@@ -120,41 +120,75 @@ class SALMONN(nn.Module):
         if not only_preprocessor:
             logging.info('Loading LLaMA Model')
 
-
+            # QLoRA 설정
+            if self.qlora:
+                quantization_config = BitsAndBytesConfig(
+                    load_in_4bit=True,
+                    bnb_4bit_use_double_quant=True,
+                    bnb_4bit_quant_type="nf4",
+                    bnb_4bit_compute_dtype=torch.bfloat16,
+                )
 
             if self.low_resource:
                 self.llama_model = AutoModelForCausalLM.from_pretrained(
+                llama_path,
+                quantization_config=quantization_config if self.qlora else None, 
+                torch_dtype=torch.float16 if not self.qlora else None,
+                load_in_8bit=not self.qlora,
+                device_map=None if self.qlora else {"": device_8bit},
+                token=token,
+            )
+                #     llama_path,
+                #     torch_dtype=torch.float16,
+                #     load_in_8bit=True,
+                #     device_map={"": device_8bit},
+                #     token=token,
+                # )
 
-                    llama_path,
-                    torch_dtype=torch.float16,
-                    load_in_8bit=True,
-                    device_map={"": device_8bit},
-                    token=token,
-                )
             else:
                 self.llama_model = AutoModelForCausalLM.from_pretrained(
                 llama_path,
-                torch_dtype=torch.float16,
+                quantization_config=quantization_config if self.qlora else None,
+                device_map=None,
+                torch_dtype=torch.float16 if not self.qlora else None,
                 token=token,
+                # trust_remote_code=True, # MoE 사용시 활성화
             )
+            #     llama_path,
+            #     torch_dtype=torch.float16,
+            #     token=token,
+            # )
             self.llama_model.resize_token_embeddings(len(self.llama_tokenizer))
             for name, param in self.llama_model.named_parameters():
                 param.requires_grad = False
             logging.info('Loading LLaMA Done')
 
-            # if self.lora or self.qlora:
-            if self.lora:
+            if self.lora or self.qlora:
+            # if self.lora:
                 self.peft_config = LoraConfig(
                     task_type=TaskType.CAUSAL_LM, 
                     inference_mode=False, 
                     r=lora_rank, 
                     lora_alpha=lora_alpha, 
                     lora_dropout=lora_dropout,
+                    target_modules=[
+                        "q_proj",
+                        "k_proj",
+                        "v_proj",
+                        "o_proj",
+                        "gate_proj",
+                        "down_proj",
+                        "up_proj",
+                    ],
                 )
                 self.llama_model = get_peft_model(self.llama_model, self.peft_config)
                 self.llama_model.print_trainable_parameters()
 
-                logging.info('LoRA Training Initialized')
+                if self.lora:
+                    logging.info('LoRA Training Initialized')
+                if self.qlora:
+                    logging.info('QLoRA Training Initialized')
+
 
 
         assert whisper_path
@@ -444,8 +478,13 @@ class SALMONN(nn.Module):
         stop_words_ids = [torch.tensor([2]).to(speech_embeds.device)] # TODO: fix this heuristics  
         stopping_criteria = StoppingCriteriaList([StoppingCriteriaSub(stops=stop_words_ids)])
         
+        pad_token_id = self.llama_tokenizer.eos_token_id # eos_token_id를 받아서 generate 모델에 전달
+        if isinstance(pad_token_id, list): # eos_token_id가 list일 때와 아닐 때를 구분
+            pad_token_id = pad_token_id[0]
+        
         outputs = self.llama_model.generate(
             inputs_embeds=embeds,
+            pad_token_id=pad_token_id, # 추가
             max_new_tokens=generate_cfg.get("max_new_tokens", 200),
             stopping_criteria=stopping_criteria,
             num_beams=generate_cfg.get("num_beams", 4),
