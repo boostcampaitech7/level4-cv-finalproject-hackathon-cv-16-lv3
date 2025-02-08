@@ -106,6 +106,7 @@ class SALMONNDataset(Dataset):
             # audiomentations는 samples=float32 필요, float64로 읽힐 때가 있으므로 float32로 변환
             audio = audio.astype(np.float32)
             audio = self.augmentation(samples=audio, sample_rate=sr)
+            audio = audio.astype(np.float64)
 
         if len(audio) < sr: # pad audio to at least 1s
             sil = np.zeros(sr - len(audio), dtype=float)
