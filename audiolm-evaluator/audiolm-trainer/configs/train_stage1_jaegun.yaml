@@ -1,21 +1,8 @@
-# Copyright (2024) Tsinghua University, Bytedance Ltd. and/or its affiliates
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 
 model:
   # paths
-  llama_path: "meta-llama/Llama-3.2-3B-Instruct"
-  whisper_path: "/data/level4-cv-finalproject-hackathon-cv-16-lv3/whisper_path/large-v2.pt"
+  llama_path: "unsloth/DeepSeek-R1-Distill-Llama-8B-unsloth-bnb-4bit"
+  whisper_path: "openai/whisper-large-v2"
   #/data/level4-cv-finalproject-hackathon-cv-16-lv3/BEATs_iter3_plus_AS2M_finetuned_on_AS2M_cpt2.pt
   beats_path: "/data/level4-cv-finalproject-hackathon-cv-16-lv3/beats_path/BEATs_iter3_plus_AS2M_finetuned_on_AS2M_cpt2.pt"
 
@@ -42,7 +29,7 @@ model:
   lora_rank: 8
   lora_alpha: 32
   lora_dropout: 0.1
-
+  qlora: True
   multi_prompt: True
   prompt_template: "USER: {}\nASSISTANT:"
   prompt_path: "prompts/train_prompt.json"
