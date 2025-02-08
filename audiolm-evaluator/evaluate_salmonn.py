@@ -23,7 +23,7 @@ def parse_args():
         "--cfg-path", 
         type=str, 
         help='path to configuration file', 
-        default='salmonn_eval_config.yaml'
+        default='salmonn_eval_config_asr.yaml'
     )
     parser.add_argument("--device", type=str, default="cuda:0")
     parser.add_argument(
