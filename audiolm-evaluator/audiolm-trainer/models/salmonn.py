@@ -113,6 +113,9 @@ class SALMONN(nn.Module):
         self.llama_tokenizer = AutoTokenizer.from_pretrained(llama_path, use_fast=False, token=token)
         self.llama_tokenizer.add_special_tokens({'pad_token': '[PAD]'})
         self.llama_tokenizer.padding_side = "right"
+        print("bos_token_id: ", self.llama_tokenizer.bos_token_id)
+        if self.llama_tokenizer.bos_token_id is None:
+            self.llama_tokenizer.bos_token_id = 151643  # 또는 해당 모델에 맞는 값
 
         if not only_preprocessor:
             logging.info('Loading LLaMA Model')
