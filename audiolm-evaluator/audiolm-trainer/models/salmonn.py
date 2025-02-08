@@ -135,12 +135,7 @@ class SALMONN(nn.Module):
                 device_map=None if self.qlora else {"": device_8bit},
                 token=token,
             )
-                #     llama_path,
-                #     torch_dtype=torch.float16,
-                #     load_in_8bit=True,
-                #     device_map={"": device_8bit},
-                #     token=token,
-                # )
+
             else:
                 self.llama_model = AutoModelForCausalLM.from_pretrained(
                 llama_path,
@@ -148,19 +143,14 @@ class SALMONN(nn.Module):
                 device_map=None,
                 torch_dtype=torch.float16 if not self.qlora else None,
                 token=token,
-                # trust_remote_code=True, # MoE 사용시 활성화
             )
-            #     llama_path,
-            #     torch_dtype=torch.float16,
-            #     token=token,
-            # )
+
             self.llama_model.resize_token_embeddings(len(self.llama_tokenizer))
             for name, param in self.llama_model.named_parameters():
                 param.requires_grad = False
             logging.info('Loading LLaMA Done')
 
             if self.lora or self.qlora:
-            # if self.lora:
                 self.peft_config = LoraConfig(
                     task_type=TaskType.CAUSAL_LM, 
                     inference_mode=False, 
@@ -183,7 +173,6 @@ class SALMONN(nn.Module):
                     logging.info('LoRA Training Initialized')
                 if self.qlora:
                     logging.info('QLoRA Training Initialized')
-                # logging.info('LoRA Training Initialized')
 
 
         assert whisper_path
