@@ -101,7 +101,6 @@ def main(args):
         # Generation
         outputs = llama_model.model.generate(
             inputs_embeds=embeds,
-            # pad_token_id=llama_model.config.eos_token_id[0],
             pad_token_id=pad_token_id,
             max_new_tokens=generate_cfg.get("max_new_tokens", 200),
             num_beams=generate_cfg.get("num_beams", 4),
@@ -115,7 +114,9 @@ def main(args):
         )
 
         results = tokenizer.batch_decode(outputs)
+        # print("results:", results)
         hyp = [result.split(generate_cfg.end_sym)[0].lower() for result in results]
+        # print("hyp:", hyp)
         hyps.extend(hyp)
 
         if not args.skip_scoring:
@@ -130,7 +131,8 @@ def main(args):
             compute_spider(hyps, refs)
 
     result_df = pd.DataFrame({"testset_id": testset_ids, "text": hyps})
-    result_df.to_csv("submission.csv", index=False)
+    
+    result_df.to_csv("Llama-1B_unsloth_aac.csv", index=False)
 
 
 if __name__ == '__main__':
