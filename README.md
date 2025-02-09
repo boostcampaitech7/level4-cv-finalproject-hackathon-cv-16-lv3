@@ -9,6 +9,9 @@ SOTA 프로젝트는 다양한 소리를 듣고 downstream task를 수행할 수
 
 베이스 모델은 [SALMONN](https://github.com/bytedance/SALMONN)입니다. 
 
+# demo
+![Demo](src/demo.gif)
+
 # 모델 아키텍처
 SALMONN 아키텍처
 <img src="src/SALMONN.png">
