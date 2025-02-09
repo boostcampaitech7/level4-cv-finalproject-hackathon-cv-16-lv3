@@ -9,6 +9,10 @@ SOTA 프로젝트는 다양한 소리를 듣고 downstream task를 수행할 수
 
 베이스 모델은 [SALMONN](https://github.com/bytedance/SALMONN)입니다. 
 
+## 팀원 소개
+
+
+
 # demo
 ![Demo](src/demo.gif)
 
@@ -35,5 +39,4 @@ asr 추론: `python evaluate_salmonn.py --task asr --skip_scoring --cfg-path sal
 
 aac 추론: `python evaluate_salmonn.py --task aac --skip_scoring --cfg-path salmonn_eval_config_aac.yaml`
 
-# demo
 
