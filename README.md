@@ -11,10 +11,10 @@ SOTA 프로젝트는 다양한 소리를 듣고 downstream task를 수행할 수
 
 # 모델 아키텍처
 SALMONN 아키텍처
-<img src="level4-cv-finalproject-hackathon-cv-16-lv3/src/SALMONN.png">
+<img src="src/SALMONN.png">
 
 SOTA 모델 아키텍처
-<img src="level4-cv-finalproject-hackathon-cv-16-lv3/src/SOTA.png">
+<img src="src/SOTA.png">
 
 # 결과
 |MODEL|SOTA|SALMONN-3B|SALMONN-7B|
