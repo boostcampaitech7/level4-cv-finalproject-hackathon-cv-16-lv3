@@ -75,8 +75,6 @@ def main():
     cfg.pretty_print()
 
     # build datasets
-    # yaml 파일의 인자를 추가하게 돼서
-    # augmentation 인자가 없어도 실행이 되게 if문 추가
     if "augmentation" not in data_config:
         datasets = {
             "train": SALMONNDataset(data_config.prefix, data_config.train_ann_path, data_config.whisper_path),
