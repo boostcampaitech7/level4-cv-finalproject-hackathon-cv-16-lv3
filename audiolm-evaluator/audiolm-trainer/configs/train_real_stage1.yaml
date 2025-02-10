@@ -18,7 +18,7 @@ model:
   whisper_path: "openai/whisper-large-v3-turbo"
   beats_path: "/root/data/_etc/_model/beats_path/BEATs_iter3_plus_AS2M_finetuned_on_AS2M_cpt2.pt"
 
-  token: "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"  # 은섭
+  token: ""  
 
   ckpt: "" #"model ckpt" # if not "", load model from ckpt for training or evaluation
 
