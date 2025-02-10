@@ -12,7 +12,7 @@ SOTA 프로젝트는 다양한 소리를 듣고 downstream task를 수행할 수
 ## 팀원 소개
 |[김동욱](https://github.com/82153)|[김재진](https://github.com/jeajin)|[이재건](https://github.com/2JAE22)|[박정욱](https://github.com/wjddnr0920)|[황은섭](https://github.com/eunseopski)|
 |---|---|---|---|---|
-|![Image](https://github.com/user-attachments/assets/7962a4ef-1901-4603-9b73-331a0a8f0a10)|![Image](https://github.com/user-attachments/assets/31b5e793-6407-4a79-a2a1-fe2df3f70b5a)|![Image](https://github.com/user-attachments/assets/bb43a22f-650b-48a6-ac05-b2caa57d4686)|![Image](https://github.com/user-attachments/assets/28eeeae0-a54b-4818-8e24-1b89ecac0cb6)|![Image](https://github.com/user-attachments/assets/06722555-5806-47fe-a2e6-ee33da5e5375)|
+|<div align="center">![Image](https://github.com/user-attachments/assets/7962a4ef-1901-4603-9b73-331a0a8f0a10)</div>|<div align="center">![Image](https://github.com/user-attachments/assets/31b5e793-6407-4a79-a2a1-fe2df3f70b5a)</div>|<div align="center">![Image](https://github.com/user-attachments/assets/bb43a22f-650b-48a6-ac05-b2caa57d4686)</div>|<div align="center">![Image](https://github.com/user-attachments/assets/28eeeae0-a54b-4818-8e24-1b89ecac0cb6)</div>|<div align="center">![Image](https://github.com/user-attachments/assets/06722555-5806-47fe-a2e6-ee33da5e5375)</div>|
 |EDA|개발 환경 구축 및 초기 세팅|개발 환경 구축 및 초기 세팅|EDA|모델 학습 및 실험 관리|
 |경량화 기법 및 모델 서칭|BaseLine 코드 및 모델 분석|모델 학습 및 실험 관리|오디오 증강 리서치|BaseLine 코드 및 모델 분석|
 |BaseLine 코드 및 모델 분석|Dataset 구축|경량화 기법 및 모델 서칭|BaseLine 코드 및 모델 분석|Dataset 구축|
