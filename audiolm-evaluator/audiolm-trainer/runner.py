@@ -341,7 +341,6 @@ class Runner:
                 # validating phase
                 logging.info("Validating Phase")
                 valid_log = self.valid_epoch(cur_epoch, "valid", decode=self.scoring, save_json=False, scoring=self.scoring)
-                # valid_log = self.valid_epoch(cur_epoch, "valid", decode=False, save_json=False, scoring=self.scoring)
                 if valid_log is not None:
                     if is_main_process():
                         agg_metrics = valid_log["agg_metrics"]

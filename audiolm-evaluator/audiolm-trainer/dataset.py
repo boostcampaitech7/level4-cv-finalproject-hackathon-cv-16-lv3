@@ -81,8 +81,6 @@ class SALMONNDataset(Dataset):
 
     def __getitem__(self, index):
         ann = self.annotation[index]
-        # 원본
-        # audio_path = self.prefix + '/' + ann["path"]
         audio_path = os.path.join(self.prefix, ann["path"])
         try:
             audio, sr = sf.read(audio_path)
@@ -93,17 +91,8 @@ class SALMONNDataset(Dataset):
         if len(audio.shape) == 2: # stereo to mono
             audio = audio[:, 0]
 
-        #if "expand_wav" in ann:
-            #for p in ann["expand_wav"]:
-                #expand_audio, _ = sf.read(self.prefix + '/' + p)
-                #if len(expand_audio.shape) == 2:
-                    #expand_audio = expand_audio[:, 0]
-                #sil = np.zeros(int(sr/10), dtype=float)
-                #audio = np.concatenate((audio, sil, expand_audio), axis=0)
-                
         # 오디오 증강 적용
         if self.augmentation: # self.augmentation이 None이 아닐 때만
-            # audiomentations는 samples=float32 필요, float64로 읽힐 때가 있으므로 float32로 변환
             audio = audio.astype(np.float32)
             audio = self.augmentation(samples=audio, sample_rate=sr)
             audio = audio.astype(np.float64)

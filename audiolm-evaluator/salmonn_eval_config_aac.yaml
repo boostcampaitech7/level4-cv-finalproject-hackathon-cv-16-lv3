@@ -14,15 +14,14 @@
 
 model:
   # paths
-  llama_path: "llama-moe/LLaMA-MoE-v1-3_0B-2_16"
-  # whisper_path: "openai/whisper-large-v2"
-  whisper_path: "openai/whisper-large-v2"
+  llama_path: "unsloth/Llama-3.2-1B-Instruct-bnb-4bit"
+  whisper_path: "openai/whisper-large-v3-turbo"
   beats_path: "/root/data/_etc/_model/beats_path/BEATs_iter3_plus_AS2M_finetuned_on_AS2M_cpt2.pt"
 
   token: "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" # Use hf token to access gated repositories
   only_preprocessor: False
 
-  ckpt: "/root/level4-cv-finalproject-hackathon-cv-16-lv3/audiolm-evaluator/audiolm-trainer/llama_moe_2_stage2/202502040408/checkpoint_best.pth" # model used for decoding
+  ckpt: "/root/data/_submission/unsloth/Llama-3.2-3B-Instruct-bnb-4bit_stage2.pth" # model used for decoding
 
   freeze_whisper: True
   freeze_beats: True
@@ -43,6 +42,7 @@ model:
   lora_rank: 8
   lora_alpha: 32
   lora_dropout: 0.1
+  qlora: True
 
   multi_prompt: True
   prompt_template: "USER: {}\nASSISTANT:"
@@ -65,7 +65,7 @@ generate:
 datasets:
   prefix: "/root/data"
   test_ann_path: "/root/data/test_aac.json"
-  whisper_path: "openai/whisper-large-v2"
+  whisper_path: "openai/whisper-large-v3-turbo"
 
 run:
   batch_size_eval: 8
