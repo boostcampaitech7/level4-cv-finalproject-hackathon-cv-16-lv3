@@ -114,9 +114,7 @@ def main(args):
         )
 
         results = tokenizer.batch_decode(outputs)
-        # print("results:", results)
         hyp = [result.split(generate_cfg.end_sym)[0].lower() for result in results]
-        # print("hyp:", hyp)
         hyps.extend(hyp)
 
         if not args.skip_scoring:
