@@ -86,38 +86,6 @@ def gradio_ask(user_message, chatbot, chat_state):
 
 
 
-# def gradio_answer(chatbot, chat_state, num_beams, temperature, top_p):
-#     samples = prepare_one_sample(chat_state[0], wav_processor)
-#     prompt = [
-#         # cfg.config.model.prompt_template.format(chat_state[1].strip())
-#         cfg.config.model.prompt_template.format("<Speech><SpeechHere></Speech> " + chat_state[1].strip())
-#     ]
-#     with torch.cuda.amp.autocast(dtype=torch.float16):
-#         llm_message = model.generate(
-#             samples, cfg.config.generate, prompts=prompt
-#         )
-#     # chatbot[-1][1] = llm_message[0]
-#     chatbot[-1][1] = llm_message[0].strip().removeprefix("<s>").removesuffix("</s>").strip()
-#     return chatbot, chat_state
-
-# def gradio_answer(chatbot, chat_state, num_beams, temperature, top_p):
-#     # chat_state[0]에는 업로드된 오디오 파일의 경로가 들어있습니다.
-#     # 업로드된 파일을 로드하고 16kHz로 변환합니다.
-#     audio_16k = convert_audio_to_16k(chat_state[0], target_sr=16000)
-#     # prepare_one_sample 함수는 audio array와 feature extractor를 받아 sample을 준비합니다.
-#     samples = prepare_one_sample(audio_16k, wav_processor)
-    
-#     # prompt에 업로드된 음성에 해당하는 텍스트(채팅 입력)를 포함시킵니다.
-#     prompt = [
-#         cfg.config.model.prompt_template.format("<Speech><SpeechHere></Speech> " + chat_state[1].strip())
-#     ]
-#     with torch.cuda.amp.autocast(dtype=torch.float16):
-#         llm_message = model.generate(
-#             samples, cfg.config.generate, prompts=prompt
-#         )
-#     # 모델 출력 후 불필요한 토큰 제거
-#     chatbot[-1][1] = llm_message[0].strip().removeprefix("<s>").removesuffix("</s>").strip()
-#     return chatbot, chat_state
 
 def gradio_answer(chatbot, chat_state, num_beams, temperature, top_p):
     # chat_state[0]에는 업로드된 오디오 파일의 경로가 들어있음
@@ -168,23 +136,6 @@ with gr.Blocks() as demo:
                 label="beam search numbers",
             )
 
-            # top_p = gr.Slider(
-            #     minimum=0.1,
-            #     maximum=1.0,
-            #     value=0.9,
-            #     step=0.1,
-            #     interactive=True,
-            #     label="top p",
-            # )
-
-            # temperature = gr.Slider(
-            #     minimum=0.8,
-            #     maximum=2.0,
-            #     value=1.0,
-            #     step=0.1,
-            #     interactive=False,
-            #     label="temperature",
-            # )
 
         with gr.Column():
             chat_state = gr.State([])
