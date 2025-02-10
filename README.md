@@ -33,8 +33,8 @@ SOTA 모델 아키텍처
 # 결과
 |MODEL|SOTA|SALMONN-3B|SALMONN-7B|
 |------|---|---|---|
-|ASR (WER, %) ↓|6.44|	6.34|5.1|
-|AAC (SPIDEr) ↑|28.85|27.84|48.5|
+|ASR (WER, %) ↓|5.3|	6.34|5.1|
+|AAC (SPIDEr) ↑|35.49|27.84|48.5|
 |Memory usage (MB) ↓|4095|9176|15750|
 
 
