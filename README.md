@@ -17,9 +17,6 @@ SOTA 프로젝트는 다양한 소리를 듣고 downstream task를 수행할 수
 |경량화 기법 및 모델 서칭|BaseLine 코드 및 모델 분석|모델 학습 및 실험 관리|오디오 증강 리서치|BaseLine 코드 및 모델 분석|
 |BaseLine 코드 및 모델 분석|Dataset 구축|경량화 기법 및 모델 서칭|BaseLine 코드 및 모델 분석|Dataset 구축|
 
-
-
-
 # demo
 ![Demo](src/demo.gif)
 
@@ -30,12 +27,15 @@ SALMONN 아키텍처
 SOTA 모델 아키텍처
 <img src="src/SOTA.png">
 
+
 # 결과
 |MODEL|SOTA|SALMONN-3B|SALMONN-7B|
 |------|---|---|---|
+
 |ASR (WER, %) ↓|5.3|	6.34|5.1|
 |AAC (SPIDEr) ↑|35.49|27.84|48.5|
 |Memory usage (MB) ↓|4095|9176|15750|
+
 
 
 
@@ -45,5 +45,6 @@ SOTA 모델 아키텍처
 asr 추론: `python evaluate_salmonn.py --task asr --skip_scoring --cfg-path salmonn_eval_config_asr.yaml`
 
 aac 추론: `python evaluate_salmonn.py --task aac --skip_scoring --cfg-path salmonn_eval_config_aac.yaml`
+
 
 
