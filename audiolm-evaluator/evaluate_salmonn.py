@@ -129,8 +129,8 @@ def main(args):
             compute_spider(hyps, refs)
 
     result_df = pd.DataFrame({"testset_id": testset_ids, "text": hyps})
-    
-    result_df.to_csv("Llama-1B_unsloth_aac.csv", index=False)
+    csv_name = args.task + ".csv"
+    result_df.to_csv(csv_name, index=False)
 
 
 if __name__ == '__main__':
