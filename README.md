@@ -1,7 +1,7 @@
 # 안녕하세요, SOTA입니다. 👋
 > **SOTA** : State-Of-The-Art 로 최신기술을 의미합니다. AI분야에서 SOTA가 되자는 의미를 담았습니다.
 
-> 최종 발표 [구글 슬라이드]() 및 [pdf]() & [Youtube]()
+> 최종 발표 [Report](src/Nota_CV_팀리포트(16조).pdf) 및 [발표 자료]() & [발표 영상]()
 > 
 <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=Python&logoColor=white"> <img src="https://img.shields.io/badge/Jupyter-F37626?style=for-the-badge&logo=Jupyter&logoColor=white"> <img src="https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=PyTorch&logoColor=white">
 
